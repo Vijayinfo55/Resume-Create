@@ -39,7 +39,7 @@ else:
     st.info("PASS ALL API-KEYS")
 
 # MULTISELECT OPTION
-options = ["delhi","mumbai","pune","banglore"]
+options = ["Delhi","Mumbai","Pune","Banglore"]
 location = st.sidebar.multiselect("Select Location",
                                   options = options)
 profile_op = ["Data Analysts","AI Engineer","Gen AI Developer"]
@@ -99,11 +99,8 @@ def main_agent(agent, query):
 # DISPLAY.HTML(code)
 
 #==============================
-def get_jobs(agent,
-             Location="Noida,Delhi",
-             Profile="Data Analysts, AI Engineer"):
-    Location = "Delhi,noida,gurugram"
-    Profile = "Data Analysts, AI Engineer"
+def get_jobs(agent,location,profile):
+             
 
     prompt = f"""Based on user given Job profile,
 fetch latest jobs or job apply article
