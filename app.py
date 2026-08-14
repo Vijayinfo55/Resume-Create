@@ -24,9 +24,9 @@ import streamlit as st
 from langchain_community.document_loaders import PyMuPDFLoader
 
 #=========================API KEY LOAD================
-GOOGLE_API_KEY =  st.sidebar.text.input("GOOGLE_API_KEY",type="password")
-GROQ_API_KEY =  st.sidebar.text.input("GROQ_API_KEY",type="password")
-TAVILY_API_KEY =  st.sidebar.text.input("TAVILY_API_KEY",type="password")
+GOOGLE_API_KEY =  st.sidebar.text_input("GOOGLE_API_KEY",type="password")
+GROQ_API_KEY =  st.sidebar.text_input("GROQ_API_KEY",type="password")
+TAVILY_API_KEY =  st.sidebar.text_input("TAVILY_API_KEY",type="password")
 
 #=====================MODEL BUILDING=====
 model = ChatGoogleGenerativeAI(
