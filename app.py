@@ -1,135 +1,114 @@
-#load modules
-from google.genai.types import Image
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_groq import ChatGroq
-import langchain
-from langchain.agents import create_agent
-from tavily import TavilyClient
-import pytesseract as pyt # for ocr
 import streamlit as st
+# streamlit : web based app making 
+# lite python framework
+
+st.title("AI Resume Maker")
+
+st.markdown("""## user can create or
+download AI created Resume based on high ATS
+score"""_ )
+
+#==============agent code=========
+import IPython as ip
 import os
 import time
-from PIL import Image
-import pandas as pd
+import langchain
+from langchain.agents import create_agent
+from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
+import pytesseract as pyt
+from tavily import TavilyClient
+from langchain.messages import SystemMessage , HumanMessage
 import numpy as np
+import streamlit as st
+from langchain_community.document_loaders import PyMuPDFLoader
 
-#=======================
+#=========================API KEY LOAD================
+GOOGLE_API_KEY =  st.sidebar.txt.input("GOOGLE_API_KEY",type="password")
+GROQ_API_KEY =  st.sidebar.txt.input("GROQ_API_KEY",type="password")
+TAVILY_API_KEY =  st.sidebar.txt.input("TAVILY_API_KEY",type="password")
 
-st.set_page_config(layout="wide")
-#=======================
-st.title("AI RESUME GENERATOR")
-st.write("""this app helps user to build customized professional resume with latest job apply links""")
-st.image("bg.png")
-st.sidebar.title("Fill Important Details")
-st.sidebar.image("bg.png")
-
-# ======================
-
-GOOGLE_API_KEY = st.sidebar.text_input("Gemini-API",type = "password")
-GROQ_API_KEY = st.sidebar.text_input("Groq-API",type = "password")
-TAVILY_API_KEY = st.sidebar.text_input("Tavily-API",type = "password")
-
-all_API = [GOOGLE_API_KEY,GROQ_API_KEY,TAVILY_API_KEY ]
-if not all(all_API):
-    st.error("Must give all API keys")
-    st.stop()
-elif all(all_API):
-    st.success("API KEYS LOADED SUCCESSFULLY")
-else:
-    st.info("PASS ALL API-KEYS")
-
-# MULTISELECT OPTION
-options = ["Delhi","Mumbai","Pune","Banglore"]
-location = st.sidebar.multiselect("Select Location",
-                                  options = options)
-profile_op = ["Data Analysts","AI Engineer","Gen AI Developer"]
-profile = st.sidebar.multiselect("Select job profile",
-                                 options = profile_op)
-st.markdown("""### GET USER INFO""")
-user_info = st.text_area("""Write your Resume Description:""")
-
-#=========================
+#=====================MODEL BUILDING=====
 model = ChatGoogleGenerativeAI(
-    model = 'gemini-3.5-flash-lite',
-    google_api_key = GOOGLE_API_KEY
+    model = 'gemini-3.5-flash',
+    google_api_key =GOOGLE_API_KEY,
 )
+#TOOL
+def search_recent_news_jobs(query):
+  """This function helps to search
+  recent news or recent jobs
+  related to give search query
+  suppose user write python Development jobs
+  it should return trending news and jobs link"""
+  client = TavilyClient(
+      api_key = TAVILY_API_KEY
+    )
+  return client.serach(query)
 
-# response=model.invoke("hello buddy!")
-# response.content[-1]['text']
-# =============================
-def search_latest__news_jobs(query):
-  """This function helps to fetch the latest news and jobs related using tavily"""
-  Client = TavilyClient(
-      api_key = TAVILY_API_KEY)
-  response = Client.search(query)
-  return response
-#========================
-  agent = create_agent(
-    model=model,
-    tools = [search_latest__news_jobs])
-# agent
-#============================
-def main_agent(agent, query):
-  """This is main agent, or leader agent orchestrate sub agents"""
-  prompt = """You are AI assistant and below given is to give detailed prompt for this.
-  you are a professional Resume generetor where users will give their personalinfo,
-  you have to create detailed resume  for students or professional one,
-  it must be with dynamic ui and ux and,
-  with advanced css professional Designing make sure to give output in HTML formalonly no markdown allowed """
 
-  response = agent.invoke({'messages':[{'role':'user',
-                                        'content':prompt}]})
-  detailed_prompt = response['messages'][-1].content[-1]['text']
-  # SAVE PROMPT USING FILE HANDLING
-  with open('prompt.txt', 'w') as f:
-    f.write(detailed_prompt)
-  user_details = f"""Below Given it is a user details generate Resume based on that, if not given keep: default resume:
-  python developer user details: {query}"""
 
-  final_prompt = prompt + detailed_prompt + user_details
-     # code generation
-  response = agent.invoke({'messages':[{'role':'user',
-                                       'content':final_prompt}]})
-  code = response['messages'][-1].content[-1]['text']
-  return code
+# agent creation
+from langchain.agents import create_agent
 
-#========================
-# code = main_agent(agent,"RISHI MITTAL, GEN AI EXPERT")
-# from IPython import display as DISPLAY
-# DISPLAY.HTML(code)
+agent = create_agent(
+    model = model,
+    tools = [search_recent_news_jobs]
+)
+agent
 
-#==============================
-def get_jobs(agent,
-             Location="Delhi,Mumbai,Pune,Banglore",
-             Profile="Data Analysts, AI Engineer"):
-    Location = "Delhi,Mumbai,Pune,Banglore"
-    Profile = "Data Analysts, AI Engineer"
 
-    prompt = f"""Based on user given Job profile,
-fetch latest jobs or job apply article
-using Naukri, Linkedin, Indeed, or all popular
-Job apply platforms, Show Results with
-JOB PROFILE NAME, LOCATION, SALARY, COMPANY NAME,
-SHOW jobs only related to given
-{Location} and {Profile}.
- Output must be in
-Professional HTML Naukri theme cards with Dynamic Design,
-Show atleast Top 10-20 results with direct apply link"""
+#==================PROMPT GENERATOR============
+def prompt_generator(agent):
+  """This function helps to give detailed prompt
+  followed by chain of thoughts and
+  persona based programming main task is to give
+  students or experienced person
+  based on their given personal information.
+  """
 
-    response = agent.invoke({'messages': [{'role': 'user',
-                                           'content': prompt}]})
-    code = response['messages'][-1].content[-1]['text']
+  prompt = """you are a senior HR resume analyzer,
+  main task is to give
+  detailed prompt to build resume for
+  students or experienced person
+  based on their personal personal information
+  system instruction i want model to generate resume
+  in HTML format, include that in prompt ."""
 
-    return code
+  response = agent.invoke(prompt)
+  file_name = 'prompt.py'
+  with open (file_name, 'w') as f:
+    f.write(response.content[-1]['text'])
+    return "prompt file generated sucessfully ,agent can read it"
 
-# code = get_jobs(agent)
-# DISPLAY.HTML(code)
 
+#=======================tool 2=================== :
+def resume_maker_prompt():
+  """this fucntion just gives
+  updated prompt for model"""
+
+  with open('prompt.py', 'r') as f:
+    prompt = f.read()
+  return prompt
+
+
+#============================gerentaor resume=================
+prompt = """You are a helpful AI assistant
+ with job resume maker, your task is to give
+HTML format resume, with proper designing using recent CSS and JS code,
+with professional design Format.
+User will upload data and return HTML format resume
+always use differnt color or styling"""
+
+final_prompt = prompt + resume_maker_prompt()
+
+user_details = """user details: given below:
+My Name is Nikhil Prajapati currently studing in iitm ,janak puri-58 in GGSIPU"""
+
+query = final_prompt + user_details
 if st.button("Generate Resume"):
-        code = main_agent(agent,user_info)
-        st.html(code,width="stretch",
-                unsafe_allow_javascript=True)
-st.divider()
-job_code = get_jobs(agent,location,profile)
-st.html(job_code, width="stretch",
-        unsafe_allow_javascript=True)
+  with st.spinner("Running Agent...."):
+
+   response = agent.invoke({'messages':[{'role': 'user','content':query}]})
+   code = response['messages'][-1].content[-1]['text']
+   st.markdown(code)
+   
