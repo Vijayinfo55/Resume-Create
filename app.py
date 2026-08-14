@@ -9,7 +9,7 @@ download AI created Resume based on high ATS
 score""")
 
 #==============agent code=========
-import IPython as ip
+# import IPython as ip
 import os
 import time
 import langchain
