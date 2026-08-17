@@ -48,9 +48,15 @@ st.markdown("""### GET USER INFO""")
 user_info = st.text_area("""Write your Resume Description:""")
 
 #=========================
-model = ChatGoogleGenerativeAI(
+# model = ChatGoogleGenerativeAI(
 #   model = 'gemini-2.5-flash-lite',
-    model = 'gemini-3.5-flash-lite',
+#    model = 'gemini-3.5-flash-lite',
+#    google_api_key = GOOGLE_API_KEY
+#)
+client = genai.Client()
+
+model = client.interactions.create(
+    model="gemini-3.6-flash",
     google_api_key = GOOGLE_API_KEY
 )
 
