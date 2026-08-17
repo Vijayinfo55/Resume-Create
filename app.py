@@ -16,7 +16,7 @@ import numpy as np
 
 #=======================
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title = "Create AI Resume", layout="wide")
 #=======================
 st.title("AI RESUME GENERATOR")
 st.write("""this app helps user to build customized professional resume with latest job apply links""")
