@@ -36,7 +36,7 @@ model2 = ChatGroq(
 #===========Agent with tool===========
 agent = create_agent(
     model = model1,   # can be model2 also,
-    tools = [search_latest_news_jobs]
+ #   tools = [search_latest_news_jobs]
 )
 
 def prompt_generator():
