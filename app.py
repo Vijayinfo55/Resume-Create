@@ -12,7 +12,6 @@ import time
 from PIL import Image
 import pandas as pd
 import numpy as np
-from google import genai
 
 #=======================
 
@@ -53,12 +52,15 @@ user_info = st.text_area("""Write your Resume Description:""")
 #    model = 'gemini-3.5-flash-lite',
 #    google_api_key = GOOGLE_API_KEY
 #)
+from google import genai
+
 client = genai.Client(api_key="AQ.Ab8RN6KPIgfAZJYcEXB0OVnBnqRdI0TlNtm0f_k7DnIlvdW_CQ")
 
 interaction = client.interactions.create(
-    model="gemini-3.5-flash-lite",
-    
+    model="gemini-3.6-flash",
+    input="Explain how AI works in a few words"
 )
+print(interaction.output_text)
 
 # response=model.invoke("hello buddy!")
 # response.content[-1]['text']
