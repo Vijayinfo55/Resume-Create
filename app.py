@@ -48,7 +48,7 @@ user_info = st.text_area("""Write your Resume Description:""")
 
 #=========================
 model = ChatGoogleGenerativeAI(
-    model = 'gemini-3.6-flash',
+    model = 'gemini-3.5-flash',
 #   model = 'gemini-3.5-flash-lite',
     google_api_key = GOOGLE_API_KEY
 )
