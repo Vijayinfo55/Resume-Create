@@ -56,7 +56,7 @@ user_info = st.text_area("""Write your Resume Description:""")
 client = genai.Client(api_key="AQ.Ab8RN6KPIgfAZJYcEXB0OVnBnqRdI0TlNtm0f_k7DnIlvdW_CQ")
 
 interaction = client.interactions.create(
-    model="gemini-3.6-flash",
+    model="gemini-3.5-flash-lite",
     
 )
 
