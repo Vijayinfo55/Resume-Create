@@ -40,11 +40,9 @@ else:
 
 # MULTISELECT OPTION
 options = ["delhi","mumbai","pune","banglore"]
-location = st.sidebar.multiselect("Select Location",
-                                  options = options)
+location = st.sidebar.multiselect("Select Location",options = options)
 profile_op = ["Data Analysts","AI Engineer","Gen AI Developer"]
-profile = st.sidebar.multiselect("Select job profile",
-                                 options = profile_op)
+profile = st.sidebar.multiselect("Select job profile",options = profile_op)
 st.markdown("""### GET USER INFO""")
 user_info = st.text_area("""Write your Resume Description:""")
 
@@ -61,10 +59,10 @@ def search_latest__news_jobs(query):
   """This function helps to fetch the latest news and jobs related using tavily"""
   Client = TavilyClient(
       api_key = TAVILY_API_KEY)
-  response = Client.search(query)
+      response = Client.search(query)
   return response
 #========================
-  agent = create_agent(
+agent = create_agent(
     model=model,
     tools = [search_latest__news_jobs])
 # agent
