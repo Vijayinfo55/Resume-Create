@@ -59,7 +59,7 @@ def search_latest__news_jobs(query):
   """This function helps to fetch the latest news and jobs related using tavily"""
   Client = TavilyClient(
       api_key = TAVILY_API_KEY)
-      response = Client.search(query)
+    response = Client.search(query)
   return response
 #========================
 agent = create_agent(
