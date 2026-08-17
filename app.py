@@ -53,11 +53,11 @@ user_info = st.text_area("""Write your Resume Description:""")
 #    model = 'gemini-3.5-flash-lite',
 #    google_api_key = GOOGLE_API_KEY
 #)
-client = genai.Client()
+client = genai.Client(api_key=GOOGLE_API_KEY)
 
-model = client.interactions.create(
+interaction = client.interactions.create(
     model="gemini-3.6-flash",
-    google_api_key = GOOGLE_API_KEY
+    
 )
 
 # response=model.invoke("hello buddy!")
