@@ -13,7 +13,7 @@ from langchain.agents import create_agent
 import streamlit as st
 
  #====================FRONT END===============================
- st.title("AI RESUME GENERATION")
+st.title("AI RESUME GENERATION")
 
 GOOGLE_API_KEY = st.sidebar.text_input("Google Api Key",type = 'password')
 GROQ_API_KEY = st.sidebar.text_input("Groq Api Key",type = 'password')
