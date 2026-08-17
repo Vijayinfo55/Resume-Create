@@ -99,22 +99,20 @@ def main_agent(agent, query):
 # DISPLAY.HTML(code)
 
 #==============================
-def get_jobs(agent,
-             Location="Noida,Delhi",
-             Profile="Data Analysts, AI Engineer"):
+def get_jobs(agent,Location="Noida,Delhi",Profile="Data Analysts, AI Engineer"):
     Location = "Delhi,noida,gurugram"
     Profile = "Data Analysts, AI Engineer"
 
     prompt = f"""Based on user given Job profile,
-fetch latest jobs or job apply article
-using Naukri, Linkedin, Indeed, or all popular
-Job apply platforms, Show Results with
-JOB PROFILE NAME, LOCATION, SALARY, COMPANY NAME,
-SHOW jobs only related to given
-{Location} and {Profile}.
- Output must be in
-Professional HTML Naukri theme cards with Dynamic Design,
-Show atleast Top 10-20 results with direct apply link"""
+    fetch latest jobs or job apply article
+    using Naukri, Linkedin, Indeed, or all popular
+    Job apply platforms, Show Results with
+    JOB PROFILE NAME, LOCATION, SALARY, COMPANY NAME,
+    SHOW jobs only related to given
+    {Location} and {Profile}.
+     Output must be in
+    Professional HTML Naukri theme cards with Dynamic Design,
+    Show atleast Top 10-20 results with direct apply link"""
 
     response = agent.invoke({'messages': [{'role': 'user',
                                            'content': prompt}]})
