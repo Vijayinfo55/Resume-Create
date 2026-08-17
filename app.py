@@ -1,100 +1,135 @@
-import streamlit as st 
-import os
-import time
-import langchain
-from langchain_community.document_loaders import PyMuPDFLoader
+#load modules
+from google.genai.types import Image
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
-from tavily import TavilyClient
-import pytesseract as pyt
-import numpy as np
-from langchain.messages import SystemMessage, HumanMessage
+import langchain
 from langchain.agents import create_agent
+from tavily import TavilyClient
+import pytesseract as pyt # for ocr
 import streamlit as st
+import os
+import time
+from PIL import Image
+import pandas as pd
+import numpy as np
 
- #====================FRONT END===============================
-st.title("AI RESUME GENERATION")
+#=======================
 
-GOOGLE_API_KEY = st.sidebar.text_input("Google Api Key",type = 'password')
-GROQ_API_KEY = st.sidebar.text_input("Groq Api Key",type = 'password')
-TAVILY_API_KEY = st.sidebar.text_input("Tavily Api Key",type = 'password')
+st.set_page_config(layout="wide")
+#=======================
+st.title("AI RESUME GENERATOR")
+st.write("""this app helps user to build customized professional resume with latest job apply links""")
+st.image("bg.png")
+st.sidebar.title("Fill Important Details")
+st.sidebar.image("bg.png")
 
-#Step 4: Model and Agent creation
-model1 = ChatGoogleGenerativeAI(
-    model = "gemini-3.5-flash-lite",
+# ======================
+
+GOOGLE_API_KEY = st.sidebar.text_input("Gemini-API",type = "password")
+GROQ_API_KEY = st.sidebar.text_input("Groq-API",type = "password")
+TAVILY_API_KEY = st.sidebar.text_input("Tavily-API",type = "password")
+
+all_API = [GOOGLE_API_KEY,GROQ_API_KEY,TAVILY_API_KEY ]
+if not all(all_API):
+    st.error("Must give all API keys")
+    st.stop()
+elif all(all_API):
+    st.success("API KEYS LOADED SUCCESSFULLY")
+else:
+    st.info("PASS ALL API-KEYS")
+
+# MULTISELECT OPTION
+options = ["delhi","mumbai","pune","banglore"]
+location = st.sidebar.multiselect("Select Location",
+                                  options = options)
+profile_op = ["Data Analysts","AI Engineer","Gen AI Developer"]
+profile = st.sidebar.multiselect("Select job profile",
+                                 options = profile_op)
+st.markdown("""### GET USER INFO""")
+user_info = st.text_area("""Write your Resume Description:""")
+
+#=========================
+model = ChatGoogleGenerativeAI(
+    model = 'gemini-3.5-flash-lite',
     google_api_key = GOOGLE_API_KEY
 )
 
-model2 = ChatGroq(
-    model = "qwen/qwen3.6-27b",
-    api_key = GROQ_API_KEY
+# response=model.invoke("hello buddy!")
+# response.content[-1]['text']
+# =============================
+def search_latest__news_jobs(query):
+  """This function helps to fetch the latest news and jobs related using tavily"""
+  Client = TavilyClient(
+      api_key = TAVILY_API_KEY)
+  response = Client.search(query)
+  return response
+#========================
+  agent = create_agent(
+    model=model,
+    tools = [search_latest__news_jobs])
+# agent
+#============================
+def main_agent(agent, query):
+  """This is main agent, or leader agent orchestrate sub agents"""
+  prompt = """You are AI assistant and below given is to give detailed prompt for this.
+  you are a professional Resume generetor where users will give their personalinfo,
+  you have to create detailed resume  for students or professional one,
+  it must be with dynamic ui and ux and,
+  with advanced css professional Designing make sure to give output in HTML formalonly no markdown allowed """
 
-)
+  response = agent.invoke({'messages':[{'role':'user',
+                                        'content':prompt}]})
+  detailed_prompt = response['messages'][-1].content[-1]['text']
+  # SAVE PROMPT USING FILE HANDLING
+  with open('prompt.txt', 'w') as f:
+    f.write(detailed_prompt)
+  user_details = f"""Below Given it is a user details generate Resume based on that, if not given keep: default resume:
+  python developer user details: {query}"""
 
+  final_prompt = prompt + detailed_prompt + user_details
+     # code generation
+  response = agent.invoke({'messages':[{'role':'user',
+                                       'content':final_prompt}]})
+  code = response['messages'][-1].content[-1]['text']
+  return code
 
+#========================
+# code = main_agent(agent,"RISHI MITTAL, GEN AI EXPERT")
+# from IPython import display as DISPLAY
+# DISPLAY.HTML(code)
 
-#===========Agent with tool===========
-agent = create_agent(
-    model = model1,   # can be model2 also,
- #   tools = [search_latest_news_jobs]
-)
+#==============================
+def get_jobs(agent,
+             Location="Noida,Delhi",
+             Profile="Data Analysts, AI Engineer"):
+    Location = "Delhi,noida,gurugram"
+    Profile = "Data Analysts, AI Engineer"
 
-def prompt_generator():
+    prompt = f"""Based on user given Job profile,
+fetch latest jobs or job apply article
+using Naukri, Linkedin, Indeed, or all popular
+Job apply platforms, Show Results with
+JOB PROFILE NAME, LOCATION, SALARY, COMPANY NAME,
+SHOW jobs only related to given
+{Location} and {Profile}.
+ Output must be in
+Professional HTML Naukri theme cards with Dynamic Design,
+Show atleast Top 10-20 results with direct apply link"""
 
- prompt = """You are a helpful AI Resume
- maker, I want you to use chain-of-thoughts
- and give detailed prompt for model
- where user want to generate resume
- for fresher or experienced one
- in HTML format, you have to give proper
- set of instructions, and make sure to keep
- design professional"""
- 
- response = model1.invoke(prompt)
- prompt_ans = response.content[-1]['text']
- # print(prompt_ans)
- 
- file_name = 'prompt.txt'
- with open(file_name, 'w') as f:
-     f.write(prompt_ans)                                                                                                                                                            
-
-prompt_generator()
-
-
-
- #Final_Agent
-
-
-#Tool 2
-def prompt_reader():
-    with open('prompt.txt', 'r') as f:
-        prompt = f.read()
-        return prompt
-    
-prompt = """I want complete Professional 
-Resume with Dynamic Design using Advanced CSS and JS
-and must show user input details
-System instructions: Only Give HTML code as output of high quality of high standards"""
-
-
-final_prompt = prompt + prompt_reader() 
-
-#Change this when required new resume by user , pass details 
-
-user_info = st.text_input("Give your information")
-user_photo = st.sidebar.file_uploader("Upload pic ", type = 'image/jpeg')
-
-
-
-user_query = f"""Give Resume for Python Developer.
-    user details : {user_info} 
-    use user profile image from given {user_photo}"""
-
-final_query = final_prompt + user_query
-
-if st.button("generate Resume"):
-  with st.spinner("Agent creating resume..."):
-    response = agent.invoke({'messages':[{'role':'user','content':final_query}]})
+    response = agent.invoke({'messages': [{'role': 'user',
+                                           'content': prompt}]})
     code = response['messages'][-1].content[-1]['text']
 
-    st.html(code,width="stretch",unsafe_allow_javascript=True)
+    return code
+
+# code = get_jobs(agent)
+# DISPLAY.HTML(code)
+
+if st.button("Generate Resume"):
+        code = main_agent(agent,user_info)
+        st.html(code,width="stretch",
+                unsafe_allow_javascript=True)
+st.divider()
+job_code = get_jobs(agent,location,profile)
+st.html(job_code, width="stretch",
+        unsafe_allow_javascript=True)
