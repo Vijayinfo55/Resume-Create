@@ -41,22 +41,22 @@ agent = create_agent(
 
 def prompt_generator():
 
-prompt = """You are a helpful AI Resume
-maker, I want you to use chain-of-thoughts
-and give detailed prompt for model
-where user want to generate resume
-for fresher or experienced one
-in HTML format, you have to give proper
-set of instructions, and make sure to keep
-design professional"""
-
-response = model1.invoke(prompt)
-prompt_ans = response.content[-1]['text']
-# print(prompt_ans)
-
-file_name = 'prompt.txt'
-with open(file_name, 'w') as f:
-    f.write(prompt_ans)                                                                                                                                                            
+ prompt = """You are a helpful AI Resume
+ maker, I want you to use chain-of-thoughts
+ and give detailed prompt for model
+ where user want to generate resume
+ for fresher or experienced one
+ in HTML format, you have to give proper
+ set of instructions, and make sure to keep
+ design professional"""
+ 
+ response = model1.invoke(prompt)
+ prompt_ans = response.content[-1]['text']
+ # print(prompt_ans)
+ 
+ file_name = 'prompt.txt'
+ with open(file_name, 'w') as f:
+     f.write(prompt_ans)                                                                                                                                                            
 
 prompt_generator()
 
