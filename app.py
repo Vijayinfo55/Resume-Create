@@ -57,7 +57,7 @@ from google import genai
 client = genai.Client(api_key="AQ.Ab8RN6KPIgfAZJYcEXB0OVnBnqRdI0TlNtm0f_k7DnIlvdW_CQ")
 
 interaction = client.interactions.create(
-    model="gemini-3.6-flash",
+    model="gemini-3.5-flash",
     input="Explain how AI works in a few words"
 )
 print(interaction.output_text)
